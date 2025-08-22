@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set Version
       id: version
@@ -48,7 +48,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Download updated pom.xml
       uses: actions/download-artifact@v3
@@ -75,7 +75,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Download updated pom.xml
       uses: actions/download-artifact@v3
