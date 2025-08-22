@@ -93,9 +93,9 @@ jobs:
         VERSION=${{ needs.build.outputs.version }}
         sed -i "s/VERSION/$VERSION/g" app.yaml
 
-    # - name: Deploy on Kind Cluster
-    #   run: |
-    #     kubectl apply -f app.yaml
+    - name: Deploy on Kind Cluster
+      run: |
+        kubectl apply -f app.yaml
 
     - name: Upload Artifact to Nexus
       env:
