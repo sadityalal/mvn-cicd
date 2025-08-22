@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: java-app
+  name: java-app
+  labels:
+    app: java-app
+    env: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-app
+      env: test
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      name: java-app
+      labels:
+        app: java-app
+        env: test
+    spec:
+      containers:
+      - name: java-app
+        image: docker.io/saurabhred/myapp-tomcat:VERSION
+        ports:
+        - containerPort: 8080
+          name: tomcatport
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 200
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 200
+          periodSeconds: 10
+      tolerations:
+      - key: nexus-ready
+        operator: "Equal"
+        value: "true"
+        effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: java-app
+  name: java-app-svc
+spec:
+  selector:
+    app: java-app
+    env: test
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+    protocol: TCP
+  type: NodePort
+
+---
+        
+          
+
