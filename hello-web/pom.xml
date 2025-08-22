@@ -22,11 +22,11 @@
     <distributionManagement>
         <repository>
             <id>nexus</id>
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <url>http://NEXUS_HOST/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
-            <url>http://localhost:8081/repository/maven-snapshots/</url>
+            <url>http://NEXUS_HOST/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -69,7 +69,7 @@
                 <version>3.1.1</version>
                 <configuration>
                     <altDeploymentRepository>
-                        nexus::default::http://localhost:8081/repository/maven-releases/
+                        nexus::default::http://NEXUS_HOST/repository/maven-releases/
                     </altDeploymentRepository>
                 </configuration>
             </plugin>

@@ -1,1 +1,106 @@
+name: maven+tomcat
 
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: local
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set Version
+      id: version
+      run: echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
+
+    - name: Update Nexus URL in pom.xml
+      run: sed -i 's\NEXUS_HOST\${{ secrets.NEXUS_URL }}\g' hello-web/pom.xml
+
+    - name: Upload updated pom.xml for other jobs
+      uses: actions/upload-artifact@v3
+      with:
+        name: pom-file
+        path: hello-web/pom.xml
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKERPASS }}
+
+    - name: Build & Push Docker Image
+      run: |
+        IMAGE=docker.io/${{ secrets.DOCKER_USER }}/myapp-tomcat:${{ steps.version.outputs.version }}
+        echo "Using image: $IMAGE"
+        docker build -t $IMAGE .
+        docker push $IMAGE
+
+  analyse:
+    runs-on: local
+    needs: build
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Download updated pom.xml
+      uses: actions/download-artifact@v3
+      with:
+        name: pom-file
+        path: hello-web
+
+    - name: Build and analyze with SonarQube
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_PASS }}
+        SONAR_HOST_URL: ${{ secrets.SONARQUBE_URL }}
+        SONAR_PROJECT: ${{ secrets.SONAR_PROJECT }}
+      run: |
+        cd hello-web
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=$SONAR_PROJECT \
+          -Dsonar.projectName=$SONAR_PROJECT \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
+
+  deploy:
+    runs-on: local
+    needs: build
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Download updated pom.xml
+      uses: actions/download-artifact@v3
+      with:
+        name: pom-file
+        path: hello-web
+
+    - name: Set Version for Deploy
+      run: |
+        VERSION=${{ needs.build.outputs.version }}
+        echo "Deploying version: $VERSION"
+
+    - name: Update Version in app.yaml
+      run: |
+        VERSION=${{ needs.build.outputs.version }}
+        sed -i "s/VERSION/$VERSION/g" app.yaml
+
+    # - name: Deploy on Kind Cluster
+    #   run: |
+    #     kubectl apply -f app.yaml
+
+    - name: Upload Artifact to Nexus
+      env:
+        NEXUS_USER: ${{ secrets.NEXUS_USER }}
+        NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+      run: |
+        cd hello-web
+        mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS

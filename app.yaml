@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: java-app
-        image: docker.io/saurabhred/myapp-tomcat:VERSION
+        image: docker.io/saurabhred/myapp-tomcat:latest
         ports:
         - containerPort: 8080
           name: tomcatport
