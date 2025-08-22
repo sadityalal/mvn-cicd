@@ -24,7 +24,7 @@ jobs:
       run: sed -i 's\NEXUS_HOST\${{ secrets.NEXUS_URL }}\g' hello-web/pom.xml
 
     - name: Upload updated pom.xml for other jobs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pom-file
         path: hello-web/pom.xml
