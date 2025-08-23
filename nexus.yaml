@@ -18,6 +18,13 @@ spec:
         app: nexus-app
         env: test
     spec:
+      initContainers:
+      - name: init-nexus
+        image: busybox:latest
+        command: ["sh", "-c", "chown -R 200:200 /nexus-data"]
+        volumeMounts:
+        - name: nexus-data
+          mountPath: /nexus-data
       containers:
       - name: nexus
         image: sonatype/nexus3:3.83.1-alpine
