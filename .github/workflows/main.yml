@@ -94,7 +94,7 @@ jobs:
     - name: Update Version in app.yaml
       run: |
         VERSION=${{ needs.build.outputs.version }}
-        sed -i '' "s|VERSION|$VERSION|g"xs app.yaml
+        sed -i '' "s|VERSION|$VERSION|g" app.yaml
 
     - name: Deploy on Kind Cluster
       run: |
