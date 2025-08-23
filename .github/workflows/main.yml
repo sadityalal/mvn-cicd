@@ -104,7 +104,19 @@ jobs:
     - name: Upload Artifact to Nexus
       env:
         NEXUS_USER: ${{ secrets.NEXUS_USER }}
-        NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+        NEXUS_PASS: ${{ secrets.NEXUS_PASSWORD }}
       run: |
         cd hello-web
-        mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS
+        cat > settings.xml <<EOF
+        <settings>
+          <servers>
+            <server>
+              <id>nexus</id>
+              <username>${NEXUS_USER}</username>
+              <password>${NEXUS_PASS}</password>
+            </server>
+          </servers>
+        </settings>
+        EOF
+
+        mvn deploy --settings settings.xml
