@@ -2,6 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
@@ -20,10 +21,13 @@
 
     <!-- Distribution Management for Nexus -->
     <distributionManagement>
+        <!-- Release artifacts go here -->
         <repository>
             <id>nexus</id>
             <url>http://NEXUS_HOST/repository/maven-releases/</url>
         </repository>
+
+        <!-- Snapshot artifacts go here -->
         <snapshotRepository>
             <id>nexus</id>
             <url>http://NEXUS_HOST/repository/maven-snapshots/</url>
@@ -62,16 +66,11 @@
                 <version>3.10.0.2594</version>
             </plugin>
 
-            <!-- Deploy Plugin (to Nexus) -->
+            <!-- Deploy Plugin (kept minimal; uses distributionManagement) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.1.1</version>
-                <configuration>
-                    <altDeploymentRepository>
-                        nexus::default::http://NEXUS_HOST/repository/maven-releases/
-                    </altDeploymentRepository>
-                </configuration>
             </plugin>
 
         </plugins>
